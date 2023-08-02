@@ -39,13 +39,14 @@ export const StoreModal = () => {
     const onSubmit = async (values: zod.infer<typeof formSchema>) => {
         try {
             setLoading(true);
-
             // Throwing a new error for testing purposes
-            throw new Error("Error");
+            // throw new Error("Error");
 
             const response = await axios.post('/api/stores', values);
 
-            toast.success("Store Created successfully.");
+            // this is better than nextjs redirect() because it works asynchronously, and this way the submission to the
+            // database is sure to execute BEFORE being redirected to another page.
+            window.location.assign(`/${response.data.id}`);
         } catch (error) {
             toast.error("Something went wrong.");
         } finally {
