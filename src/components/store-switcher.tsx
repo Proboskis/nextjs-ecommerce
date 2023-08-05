@@ -1,7 +1,8 @@
 "use client";
 
-import {useState} from "react";
 import {Check, ChevronsUpDown, PlusCircle, Store as StoreIcon} from "lucide-react";
+import {useState} from "react";
+import {Store} from "@prisma/client";
 import {useParams, useRouter} from "next/navigation";
 
 import {Popover, PopoverContent, PopoverTrigger} from "@/components/ui/popover";
@@ -15,7 +16,7 @@ import {
     CommandList,
     CommandSeparator
 } from "@/components/ui/command";
-import {useStoreModal} from "../../hooks/use-store-modal";
+import {useStoreModal} from "@/../hooks/use-store-modal";
 import {cn} from "@/lib/utils";
 
 
@@ -36,14 +37,14 @@ export default function StoreSwitcher({
 
     const formattedItems = items.map((item) => ({
         label: item.name,
-        id: item.id
+        value: item.id
     }));
 
     const currentStore = formattedItems.find((item) => item.value === params.storeId);
 
     const [open, setOpen] = useState(false);
 
-    const onStoreSelect = (store: { label: any; id: any }) => {
+    const onStoreSelect = (store: { label: string; id: string }) => {
         setOpen(false);
         router.push(`/${store.value}`);
     }
@@ -99,9 +100,8 @@ export default function StoreSwitcher({
                                     storeModal.onOpen();
                                 }}
                             >
-                                <PlusCircle className="mr-2 h-5 w-5">
-                                    Create Store
-                                </PlusCircle>
+                                <PlusCircle className="mr-2 h-5 w-5" />
+                                Create Store
                             </CommandItem>
                         </CommandGroup>
                     </CommandList>
