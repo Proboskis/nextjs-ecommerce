@@ -7,7 +7,7 @@ import {SettingsForm} from "@/app/(dashboard)/[storeId]/(routes)/settings/compon
 
 interface SettingsPageProps {
     params: {
-        storeId: string;
+        storeId: string
     }
 }
 
@@ -17,7 +17,7 @@ const SettingsPage: React.FC<SettingsPageProps> = async ({
     const { userId } = auth();
 
     if (!userId) {
-        redirect("/sign-in")
+        redirect("/sign-in");
     }
 
     const store = await prismaDatabase.store.findFirst({
@@ -34,7 +34,7 @@ const SettingsPage: React.FC<SettingsPageProps> = async ({
     return(
         <div className="flex-col">
             <div className="flex-1 space-y-4 p-8 pt-6">
-                <SettingsForm  initialData={store}/>
+                <SettingsForm  initialData={store}b />
             </div>
         </div>
     );
