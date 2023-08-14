@@ -4,7 +4,7 @@ import {BillboardForm} from "@/app/(dashboard)/[storeId]/(routes)/billboards/[bi
 
 const BillboardPage = async ({
   params,
-}: {
+} : {
   params: { billboardId: string }
 }) => {
   const billboard = await prismaDatabase.billboard.findUnique({

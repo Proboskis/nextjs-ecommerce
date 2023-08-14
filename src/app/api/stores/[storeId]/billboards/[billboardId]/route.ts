@@ -82,7 +82,7 @@ export async function PATCH (
 
 export async function DELETE (
     request: Request,
-    {params} : {params: {StoreId: string, billboardId: string}}
+    {params} : {params: {storeId: string, billboardId: string}}
 ) {
     try {
         const { userId } = auth();

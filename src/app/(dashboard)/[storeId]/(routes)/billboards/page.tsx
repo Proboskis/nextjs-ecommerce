@@ -1,17 +1,10 @@
-import prismaDatabase from "@/lib/prismadb";
-
 import {BillboardClient} from "@/app/(dashboard)/[storeId]/(routes)/billboards/components/client";
 
-const BillboardPage = async ({
+const BillboardsPage = async ({
     params
 } : {
     params: { billboardId: string }
 }) => {
-    const billboard = await prismaDatabase.billboard.findUnique({
-        where: {
-            id: params.billboardId
-        }
-    });
 
   return (
     <div className="flex-col">
@@ -22,4 +15,4 @@ const BillboardPage = async ({
   );
 };
 
-export default BillboardPage;
+export default BillboardsPage;

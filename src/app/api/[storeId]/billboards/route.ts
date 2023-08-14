@@ -1,15 +1,15 @@
-import {NextResponse} from "next/server";
 import {auth} from "@clerk/nextjs";
+import {NextResponse} from "next/server";
 
 import prismaDatabase from "@/lib/prismadb";
 
 export async function POST(
-    req: Request,
+    request: Request,
     {params} : {params: {storeId: string}}
 ) {
     try {
         const { userId } = auth();
-        const body = await req.json();
+        const body = await request.json();
 
         const { label, imageUrl } = body;
 
@@ -36,6 +36,7 @@ export async function POST(
             }
         });
 
+        // This check is to prevent users from modifying stores that are not their own
         if (!storeByUserId) {
             return new NextResponse("Unauthorized", { status: 403});
         }
@@ -73,7 +74,6 @@ export async function GET(
         });
 
         return NextResponse.json(billboards);
-
     } catch (error) {
         console.log('[BILLBOARDS_GET]', error);
         return new NextResponse("Internal Server Error", { status: 500 });

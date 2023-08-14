@@ -1,6 +1,6 @@
+import {auth} from "@clerk/nextjs";
 import {NextResponse} from "next/server";
 
-import {auth} from "@clerk/nextjs";
 import prismaDatabase from "@/lib/prismadb";
 
 export async function PATCH (
@@ -44,7 +44,7 @@ export async function PATCH (
 
 export async function DELETE (
     request: Request,
-    {params} : {params: {StoreId: string}}
+    {params} : {params: {storeId: string}}
 ) {
     try {
         const { userId } = auth();
