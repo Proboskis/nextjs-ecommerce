@@ -1,33 +1,29 @@
 import prismaDatabase from "@/lib/prismadb";
 
-import {CategoryClient} from "@/app/(dashboard)/[storeId]/(routes)/categories/components/client";
-import {CategoryColumn} from "@/app/(dashboard)/[storeId]/(routes)/categories/components/columns";
+import { CategoryClient } from "@/app/(dashboard)/[storeId]/(routes)/categories/components/client";
+import { CategoryColumn } from "@/app/(dashboard)/[storeId]/(routes)/categories/components/columns";
 
-import {format} from "date-fns";
+import { format } from "date-fns";
 
-const CategoriesPage = async ({
-    params
-} : {
-    params: { storeId: string }
-}) => {
-    const categories = await  prismaDatabase.category.findMany({
-        where: {
-            storeId: params.storeId
-        },
-        include: {
-            billboard: true
-        },
-        orderBy: {
-            createdAt: 'desc'
-        }
-    });
+const CategoriesPage = async ({ params }: { params: { storeId: string } }) => {
+  const categories = await prismaDatabase.category.findMany({
+    where: {
+      storeId: params.storeId,
+    },
+    include: {
+      billboard: true,
+    },
+    orderBy: {
+      createdAt: "desc",
+    },
+  });
 
-    const formattedCategories: CategoryColumn[] = categories.map((item) => ({
-        id: item.id,
-        label: item.name,
-        billboardLabel: item.billboard.label,
-        createdAt: format(item.createdAt, "MMMM do, yyyy")
-    }));
+  const formattedCategories: CategoryColumn[] = categories.map((item) => ({
+    id: item.id,
+    name: item.name,
+    billboardLabel: item.billboard.label,
+    createdAt: format(item.createdAt, "MMMM do, yyyy"),
+  }));
 
   return (
     <div className="flex-col">
