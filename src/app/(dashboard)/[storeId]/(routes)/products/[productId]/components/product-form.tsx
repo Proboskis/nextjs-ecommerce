@@ -5,7 +5,7 @@ import { useForm } from "react-hook-form";
 import * as zod from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import axios from "axios";
-import { Billboard } from "@prisma/client";
+import { Product, Image } from "@prisma/client";
 import { toast } from "react-hot-toast";
 import { Trash } from "lucide-react";
 import { useParams, useRouter } from "next/navigation";
@@ -25,49 +25,66 @@ import { Input } from "@/components/ui/input";
 import { AlertModal } from "@/components/modals/alert-modal";
 import ImageUpload from "@/components/ui/image-upload";
 
-interface BillboardFormProps {
-  initialData: Billboard | null;
+interface ProductFormProps {
+  initialData: Product & {
+      images: Image[]
+  } | null;
 }
 
 const formSchema = zod.object({
-  label: zod.string().min(1),
-  imageUrl: zod.string().min(1)
+  name: zod.string().min(1),
+  images: zod.object({url: zod.string()}).array(),
+  price: zod.coerce.number().min(1),
+  categoryId: zod.string().min(1),
+  colorId: zod.string().min(1),
+  sizeId: zod.string().min(1),
+  isFeatured: zod.boolean().default(false).optional(),
+  isArchived: zod.boolean().default(false).optional(),
 });
 
 // this is so that we do not have to write zod.infer<typeof formSchema> every single time,
 // we can just use SettingsFormValues when we need it
-type BillboardFormValues = zod.infer<typeof formSchema>;
+type ProductFormValues = zod.infer<typeof formSchema>;
 
-export const ProductForm: React.FC<BillboardFormProps> = ({ initialData }) => {
+export const ProductForm: React.FC<ProductFormProps> = ({ initialData }) => {
   const params = useParams();
   const router = useRouter();
 
   const [open, setOpen] = useState(false);
   const [loading, setLoading] = useState(false);
 
-  const title = initialData ? "Edit Billboard" : "Create Billboard";
-  const description = initialData ? "Edit a Billboard" : "Add a new Billboard";
-  const toastMessage = initialData ? "Billboard updated." : "Billboard created.";
+  const title = initialData ? "Edit Product" : "Create Product";
+  const description = initialData ? "Edit a Product" : "Add a new Product";
+  const toastMessage = initialData ? "Product updated." : "Product created.";
   const action = initialData ? "Save changes" : "create";
 
-  const form = useForm<BillboardFormValues>({
+  const form = useForm<ProductFormValues>({
     resolver: zodResolver(formSchema),
-    defaultValues: initialData || {
-      label: '',
-      imageUrl: ''
+    defaultValues: initialData ? {
+      ...initialData,
+      price: parseFloat(String(initialData?.price)),
+    } : {
+      name: '',
+      images: [],
+      price: 0,
+      categoryId: '',
+      colorId: '',
+      sizeId: '',
+      isFeatured: false,
+      isArchived: false,
     },
   });
 
-  const onSubmit = async (data: BillboardFormValues) => {
+  const onSubmit = async (data: ProductFormValues) => {
     try {
       setLoading(true);
       if (initialData) {
-          await axios.patch(`/api/${params.storeId}/billboards/${params.billboardId}`, data);
+          await axios.patch(`/api/${params.storeId}/products/${params.billboardId}`, data);
       } else {
-          await axios.post(`/api/${params.storeId}/billboards`, data);
+          await axios.post(`/api/${params.storeId}/products`, data);
       }
       router.refresh();
-      router.push(`/${params.storeId}/billboards`);
+      router.push(`/${params.storeId}/products`);
       toast.success(toastMessage);
     } catch (error) {
       toast.error("Something went wrong.");
@@ -80,10 +97,10 @@ export const ProductForm: React.FC<BillboardFormProps> = ({ initialData }) => {
   const onDelete = async () => {
     try {
       setLoading(true);
-      await axios.delete(`/api/${params.storeId}/billboards/${params.billboardId}`);
+      await axios.delete(`/api/${params.storeId}/products/${params.productId}`);
       router.refresh();
-      router.push(`/${params.storeId}/billboards`);
-      toast.success("Billboard deleted.");
+      router.push(`/${params.storeId}/products`);
+      toast.success("Product deleted.");
     } catch (error) {
       toast.error(
         "Make sure you have removed all the categories using this billboard first."
@@ -106,12 +123,12 @@ export const ProductForm: React.FC<BillboardFormProps> = ({ initialData }) => {
         <Heading title={title} description={description} />
         { initialData && (
           <Button
-              disabled={loading}
-              variant="destructive"
-              size="icon"
-              onClick={() => setOpen(true)}
+            disabled={loading}
+            variant="destructive"
+            size="icon"
+            onClick={() => setOpen(true)}
           >
-            <Trash className="h-4 w-4 " />
+            <Trash className="h-4 w-4" />
           </Button>
         )}
       </div>
@@ -122,22 +139,23 @@ export const ProductForm: React.FC<BillboardFormProps> = ({ initialData }) => {
           className="space-y-8 w-full"
         >
           <FormField
-              control={form.control}
-              name="imageUrl"
-              render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Background image</FormLabel>
-                    <FormControl>
-                      <ImageUpload
-                        value={field.value ? [field.value] : []}
-                        disabled={loading}
-                        onChange={(url) => field.onChange(url)}
-                        onRemove={() => field.onChange("")}
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-              )}
+            control={form.control}
+            name="images"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Images</FormLabel>
+                <FormControl>
+                  <ImageUpload
+                    value={field.value.map((image) => image.url)}
+                    disabled={loading}
+                    onChange={(url) => field.onChange([...field.value, {url}])}
+                    onRemove={(url) => field.onChange([...field.value.filter(
+                      (current) => current.url !== url)])}
+                  />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
           />
           <div className="grid grid-cols-3 gap-8">
             <FormField
@@ -145,11 +163,11 @@ export const ProductForm: React.FC<BillboardFormProps> = ({ initialData }) => {
               name="label"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Label</FormLabel>
+                  <FormLabel>Name</FormLabel>
                   <FormControl>
                     <Input
                       disabled={loading}
-                      placeholder="Billboard label"
+                      placeholder="Product Name"
                       {...field}
                     />
                   </FormControl>
