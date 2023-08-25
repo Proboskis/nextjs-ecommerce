@@ -1,121 +1,121 @@
-import {auth} from "@clerk/nextjs";
-import {NextResponse} from "next/server";
+import { auth } from "@clerk/nextjs";
+import { NextResponse } from "next/server";
 
 import prismaDatabase from "@/lib/prismadb";
 
-export async function GET (
-    request: Request,
-    {params} : {params: {billboardId: string}}
+export async function GET(
+  request: Request,
+  { params }: { params: { billboardId: string } }
 ) {
-    try {
-        if (!params.billboardId) {
-            return new NextResponse("Billboard id is required", { status: 400});
-        }
-
-        const billboard = await prismaDatabase.billboard.findUnique({
-            where: {
-                id: params.billboardId
-            }
-        });
-
-        return NextResponse.json(billboard);
-    } catch (error) {
-        console.log('[BILLBOARD_GET]', error);
-        return new NextResponse("Internal Error", { status: 500 });
+  try {
+    if (!params.billboardId) {
+      return new NextResponse("Billboard id is required", { status: 400 });
     }
+
+    const billboard = await prismaDatabase.billboard.findUnique({
+      where: {
+        id: params.billboardId,
+      },
+    });
+
+    return NextResponse.json(billboard);
+  } catch (error) {
+    console.log("[BILLBOARD_GET]", error);
+    return new NextResponse("Internal Error", { status: 500 });
+  }
 }
 
-export async function PATCH (
-    request: Request,
-    {params} : {params: {storeId: string, billboardId: string}}
+export async function PATCH(
+  request: Request,
+  { params }: { params: { storeId: string; billboardId: string } }
 ) {
-    try {
-        const { userId } = auth();
-        const body = await request.json();
+  try {
+    const { userId } = auth();
+    const body = await request.json();
 
-        const { label, imageUrl } = body;
+    const { label, imageUrl } = body;
 
-        if (!userId) {
-            return new NextResponse("Unauthenticated", { status: 401 });
-        }
-
-        if (!label) {
-            return new NextResponse("Label is required", { status: 400});
-        }
-
-        if (!imageUrl) {
-            return new NextResponse("Image URL is required", { status: 400});
-        }
-
-        if (!params.billboardId) {
-            return new NextResponse("Billboard id is required", { status: 400});
-        }
-
-        const storeByUserId = await prismaDatabase.store.findFirst({
-            where: {
-                id: params.storeId,
-                userId
-            }
-        });
-
-        // This check is to prevent users from modifying stores that are not their own
-        if (!storeByUserId) {
-            return new NextResponse("Unauthorized", { status: 403});
-        }
-
-        const billboard = await prismaDatabase.billboard.updateMany({
-            where: {
-                id: params.billboardId
-            },
-            data: {
-                label,
-                imageUrl
-            }
-        });
-
-        return NextResponse.json(billboard);
-    } catch (error) {
-        console.log('[BILLBOARD_PATCH]', error);
-        return new NextResponse("Internal Error", { status: 500 });
+    if (!userId) {
+      return new NextResponse("Unauthenticated", { status: 401 });
     }
+
+    if (!label) {
+      return new NextResponse("Label is required", { status: 400 });
+    }
+
+    if (!imageUrl) {
+      return new NextResponse("Image URL is required", { status: 400 });
+    }
+
+    if (!params.billboardId) {
+      return new NextResponse("Billboard id is required", { status: 400 });
+    }
+
+    const storeByUserId = await prismaDatabase.store.findFirst({
+      where: {
+        id: params.storeId,
+        userId,
+      },
+    });
+
+    // This check is to prevent users from modifying stores that are not their own
+    if (!storeByUserId) {
+      return new NextResponse("Unauthorized", { status: 403 });
+    }
+
+    const billboard = await prismaDatabase.billboard.updateMany({
+      where: {
+        id: params.billboardId,
+      },
+      data: {
+        label,
+        imageUrl,
+      },
+    });
+
+    return NextResponse.json(billboard);
+  } catch (error) {
+    console.log("[BILLBOARD_PATCH]", error);
+    return new NextResponse("Internal Error", { status: 500 });
+  }
 }
 
-export async function DELETE (
-    request: Request,
-    {params} : {params: {StoreId: string, billboardId: string}}
+export async function DELETE(
+  request: Request,
+  { params }: { params: { StoreId: string; billboardId: string } }
 ) {
-    try {
-        const { userId } = auth();
+  try {
+    const { userId } = auth();
 
-        if (!userId) {
-            return new NextResponse("Unauthenticated", { status: 401 })
-        }
-
-        if (!params.billboardId) {
-            return new NextResponse("Billboard id is required", { status: 400});
-        }
-
-        const storeByUserId = await prismaDatabase.store.findFirst({
-            where: {
-                id: params.StoreId,
-                userId
-            }
-        });
-
-        // This check is to prevent users from modifying stores that are not their own
-        if (!storeByUserId) {
-            return new NextResponse("Unauthorized", { status: 403});
-        }
-
-        const billboard = await prismaDatabase.billboard.deleteMany({
-            where: {
-                id: params.billboardId
-            }
-        });
-
-        return NextResponse.json(billboard);
-    } catch (error) {
-        console.log('[BILLBOARD_DELETE]', error);
-        return new NextResponse("Internal Error", { status: 500 });
+    if (!userId) {
+      return new NextResponse("Unauthenticated", { status: 401 });
     }
+
+    if (!params.billboardId) {
+      return new NextResponse("Billboard id is required", { status: 400 });
+    }
+
+    const storeByUserId = await prismaDatabase.store.findFirst({
+      where: {
+        id: params.StoreId,
+        userId,
+      },
+    });
+
+    // This check is to prevent users from modifying stores that are not their own
+    if (!storeByUserId) {
+      return new NextResponse("Unauthorized", { status: 403 });
+    }
+
+    const billboard = await prismaDatabase.billboard.deleteMany({
+      where: {
+        id: params.billboardId,
+      },
+    });
+
+    return NextResponse.json(billboard);
+  } catch (error) {
+    console.log("[BILLBOARD_DELETE]", error);
+    return new NextResponse("Internal Error", { status: 500 });
+  }
 }
