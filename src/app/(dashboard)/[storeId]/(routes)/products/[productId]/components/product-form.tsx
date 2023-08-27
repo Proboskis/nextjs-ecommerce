@@ -1,25 +1,25 @@
 "use client";
 
-import { useState } from "react";
-import { useForm } from "react-hook-form";
+import {useState} from "react";
+import {useForm} from "react-hook-form";
 import * as zod from "zod";
-import { zodResolver } from "@hookform/resolvers/zod";
+import {zodResolver} from "@hookform/resolvers/zod";
 import axios from "axios";
-import { Product, Image, Category, Color, Size } from "@prisma/client";
-import { toast } from "react-hot-toast";
-import { Trash } from "lucide-react";
-import { useParams, useRouter } from "next/navigation";
+import {Product, Image, Category, Color, Size} from "@prisma/client";
+import {toast} from "react-hot-toast";
+import {Trash} from "lucide-react";
+import {useParams, useRouter} from "next/navigation";
 
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
-  SelectValue,
+  SelectValue
 } from "@/components/ui/select";
-import { Heading } from "@/components/ui/heading";
-import { Button } from "@/components/ui/button";
-import { Separator } from "@/components/ui/separator";
+import {Heading} from "@/components/ui/heading";
+import {Button} from "@/components/ui/button";
+import {Separator} from "@/components/ui/separator";
 import {
   Form,
   FormControl,
@@ -27,19 +27,18 @@ import {
   FormField,
   FormItem,
   FormLabel,
-  FormMessage,
+  FormMessage
 } from "@/components/ui/form";
-import { Input } from "@/components/ui/input";
-import { AlertModal } from "@/components/modals/alert-modal";
+import {Input} from "@/components/ui/input";
+import {AlertModal} from "@/components/modals/alert-modal";
 import ImageUpload from "@/components/ui/image-upload";
-import { Checkbox } from "@/components/ui/checkbox";
+import {Checkbox} from "@/components/ui/checkbox";
 
 interface ProductFormProps {
   initialData:
-    | (Product & {
-        images: Image[];
-      })
-    | null;
+    Product & {
+    images: Image[];
+  } | null;
   categories: Category[];
   colors: Color[];
   sizes: Size[];
@@ -47,13 +46,13 @@ interface ProductFormProps {
 
 const formSchema = zod.object({
   name: zod.string().min(1),
-  images: zod.object({ url: zod.string() }).array(),
+  images: zod.object({url: zod.string()}).array(),
   price: zod.coerce.number().min(1),
   categoryId: zod.string().min(1),
   colorId: zod.string().min(1),
   sizeId: zod.string().min(1),
   isFeatured: zod.boolean().default(false).optional(),
-  isArchived: zod.boolean().default(false).optional(),
+  isArchived: zod.boolean().default(false).optional()
 });
 
 // this is so that we do not have to write zod.infer<typeof formSchema> every single time,
@@ -64,7 +63,7 @@ export const ProductForm: React.FC<ProductFormProps> = ({
   initialData,
   categories,
   colors,
-  sizes,
+  sizes
 }) => {
   const params = useParams();
   const router = useRouter();
@@ -81,19 +80,19 @@ export const ProductForm: React.FC<ProductFormProps> = ({
     resolver: zodResolver(formSchema),
     defaultValues: initialData
       ? {
-          ...initialData,
-          price: parseFloat(String(initialData?.price)),
-        }
+        ...initialData,
+        price: parseFloat(String(initialData?.price))
+      }
       : {
-          name: "",
-          images: [],
-          price: 0,
-          categoryId: "",
-          colorId: "",
-          sizeId: "",
-          isFeatured: false,
-          isArchived: false,
-        },
+        name: "",
+        images: [],
+        price: 0,
+        categoryId: "",
+        colorId: "",
+        sizeId: "",
+        isFeatured: false,
+        isArchived: false
+      }
   });
 
   const onSubmit = async (data: ProductFormValues) => {
@@ -142,7 +141,7 @@ export const ProductForm: React.FC<ProductFormProps> = ({
         loading={loading}
       />
       <div className="flex items-center justify-between">
-        <Heading title={title} description={description} />
+        <Heading title={title} description={description}/>
         {initialData && (
           <Button
             disabled={loading}
@@ -150,11 +149,11 @@ export const ProductForm: React.FC<ProductFormProps> = ({
             size="icon"
             onClick={() => setOpen(true)}
           >
-            <Trash className="h-4 w-4" />
+            <Trash className="h-4 w-4"/>
           </Button>
         )}
       </div>
-      <Separator />
+      <Separator/>
       <Form {...form}>
         <form
           onSubmit={form.handleSubmit(onSubmit)}
@@ -163,7 +162,7 @@ export const ProductForm: React.FC<ProductFormProps> = ({
           <FormField
             control={form.control}
             name="images"
-            render={({ field }) => (
+            render={({field}) => (
               <FormItem>
                 <FormLabel>Images</FormLabel>
                 <FormControl>
@@ -171,16 +170,16 @@ export const ProductForm: React.FC<ProductFormProps> = ({
                     value={field.value.map((image) => image.url)}
                     disabled={loading}
                     onChange={(url) =>
-                      field.onChange([...field.value, { url }])
+                      field.onChange([...field.value, {url}])
                     }
                     onRemove={(url) =>
                       field.onChange([
-                        ...field.value.filter((current) => current.url !== url),
+                        ...field.value.filter((current) => current.url !== url)
                       ])
                     }
                   />
                 </FormControl>
-                <FormMessage />
+                <FormMessage/>
               </FormItem>
             )}
           />
@@ -188,7 +187,7 @@ export const ProductForm: React.FC<ProductFormProps> = ({
             <FormField
               control={form.control}
               name="name"
-              render={({ field }) => (
+              render={({field}) => (
                 <FormItem>
                   <FormLabel>Name</FormLabel>
                   <FormControl>
@@ -198,14 +197,14 @@ export const ProductForm: React.FC<ProductFormProps> = ({
                       {...field}
                     />
                   </FormControl>
-                  <FormMessage />
+                  <FormMessage/>
                 </FormItem>
               )}
             />
             <FormField
               control={form.control}
               name="price"
-              render={({ field }) => (
+              render={({field}) => (
                 <FormItem>
                   <FormLabel>Price</FormLabel>
                   <FormControl>
@@ -216,14 +215,14 @@ export const ProductForm: React.FC<ProductFormProps> = ({
                       {...field}
                     />
                   </FormControl>
-                  <FormMessage />
+                  <FormMessage/>
                 </FormItem>
               )}
             />
             <FormField
               control={form.control}
               name="categoryId"
-              render={({ field }) => (
+              render={({field}) => (
                 <FormItem>
                   <FormLabel>Categories</FormLabel>
                   <Select
@@ -248,14 +247,14 @@ export const ProductForm: React.FC<ProductFormProps> = ({
                       ))}
                     </SelectContent>
                   </Select>
-                  <FormMessage />
+                  <FormMessage/>
                 </FormItem>
               )}
             />
             <FormField
               control={form.control}
               name="sizeId"
-              render={({ field }) => (
+              render={({field}) => (
                 <FormItem>
                   <FormLabel>Size</FormLabel>
                   <Select
@@ -280,16 +279,16 @@ export const ProductForm: React.FC<ProductFormProps> = ({
                       ))}
                     </SelectContent>
                   </Select>
-                  <FormMessage />
+                  <FormMessage/>
                 </FormItem>
               )}
             />
             <FormField
               control={form.control}
               name="colorId"
-              render={({ field }) => (
+              render={({field}) => (
                 <FormItem>
-                  <FormLabel>Size</FormLabel>
+                  <FormLabel>Color</FormLabel>
                   <Select
                     disabled={loading}
                     onValueChange={field.onChange}
@@ -312,14 +311,14 @@ export const ProductForm: React.FC<ProductFormProps> = ({
                       ))}
                     </SelectContent>
                   </Select>
-                  <FormMessage />
+                  <FormMessage/>
                 </FormItem>
               )}
             />
             <FormField
               control={form.control}
               name="isFeatured"
-              render={({ field }) => (
+              render={({field}) => (
                 <FormItem className="flex flex-row items-start space-x-3 space-y-0 rounded-md border p-4">
                   <FormControl>
                     <Checkbox
@@ -339,7 +338,7 @@ export const ProductForm: React.FC<ProductFormProps> = ({
             <FormField
               control={form.control}
               name="isArchived"
-              render={({ field }) => (
+              render={({field}) => (
                 <FormItem className="flex flex-row items-start space-x-3 space-y-0 rounded-md border p-4">
                   <FormControl>
                     <Checkbox
