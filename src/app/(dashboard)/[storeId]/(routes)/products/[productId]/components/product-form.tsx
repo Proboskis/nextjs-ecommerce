@@ -1,5 +1,4 @@
 "use client";
-
 import {useState} from "react";
 import {useForm} from "react-hook-form";
 import * as zod from "zod";
@@ -15,7 +14,7 @@ import {
   SelectContent,
   SelectItem,
   SelectTrigger,
-  SelectValue
+  SelectValue,
 } from "@/components/ui/select";
 import {Heading} from "@/components/ui/heading";
 import {Button} from "@/components/ui/button";
@@ -27,7 +26,7 @@ import {
   FormField,
   FormItem,
   FormLabel,
-  FormMessage
+  FormMessage,
 } from "@/components/ui/form";
 import {Input} from "@/components/ui/input";
 import {AlertModal} from "@/components/modals/alert-modal";
@@ -52,7 +51,7 @@ const formSchema = zod.object({
   colorId: zod.string().min(1),
   sizeId: zod.string().min(1),
   isFeatured: zod.boolean().default(false).optional(),
-  isArchived: zod.boolean().default(false).optional()
+  isArchived: zod.boolean().default(false).optional(),
 });
 
 // this is so that we do not have to write zod.infer<typeof formSchema> every single time,
@@ -63,7 +62,7 @@ export const ProductForm: React.FC<ProductFormProps> = ({
   initialData,
   categories,
   colors,
-  sizes
+  sizes,
 }) => {
   const params = useParams();
   const router = useRouter();
@@ -81,7 +80,7 @@ export const ProductForm: React.FC<ProductFormProps> = ({
     defaultValues: initialData
       ? {
         ...initialData,
-        price: parseFloat(String(initialData?.price))
+        price: parseFloat(String(initialData?.price)),
       }
       : {
         name: "",
@@ -91,8 +90,8 @@ export const ProductForm: React.FC<ProductFormProps> = ({
         colorId: "",
         sizeId: "",
         isFeatured: false,
-        isArchived: false
-      }
+        isArchived: false,
+      },
   });
 
   const onSubmit = async (data: ProductFormValues) => {
@@ -100,7 +99,7 @@ export const ProductForm: React.FC<ProductFormProps> = ({
       setLoading(true);
       if (initialData) {
         await axios.patch(
-          `/api/${params.storeId}/products/${params.billboardId}`,
+          `/api/${params.storeId}/products/${params.productId}`,
           data
         );
       } else {
@@ -174,7 +173,7 @@ export const ProductForm: React.FC<ProductFormProps> = ({
                     }
                     onRemove={(url) =>
                       field.onChange([
-                        ...field.value.filter((current) => current.url !== url)
+                        ...field.value.filter((current) => current.url !== url),
                       ])
                     }
                   />
@@ -288,7 +287,7 @@ export const ProductForm: React.FC<ProductFormProps> = ({
               name="colorId"
               render={({field}) => (
                 <FormItem>
-                  <FormLabel>Color</FormLabel>
+                  <FormLabel>Size</FormLabel>
                   <Select
                     disabled={loading}
                     onValueChange={field.onChange}
