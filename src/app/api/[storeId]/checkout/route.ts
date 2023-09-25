@@ -47,7 +47,6 @@ export async function POST(
     });
   });
 
-  // metadata in the session bellow is used to find the order and change the isPaid to true, to realize the payment
   const order = await prismaDatabase.order.create({
     data: {
       storeId: params.storeId,
@@ -64,6 +63,7 @@ export async function POST(
     }
   });
 
+  // metadata in the session bellow is used to find the order and change the isPaid to true, to realize the payment
   const session = await stripe.checkout.sessions.create({
     line_items,
     mode: "payment",

@@ -53,7 +53,7 @@ export async function POST(request: Request) {
       }
     });
 
-    const productIds = orderItems.map(orderItem => orderItem.productId);
+    const productIds = order.orderItems.map(orderItem => orderItem.productId);
 
     await prismaDatabase.product.updateMany({
       where: {
